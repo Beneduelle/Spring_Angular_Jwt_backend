@@ -1,3 +1,6 @@
+jwt:
+  secret: '[a-zA-Z0-9._]^+$Guidelines89797987forAlphabeticalArraNumeralasndOtherSymbo$'
+
 server:
   port: 8081
 
