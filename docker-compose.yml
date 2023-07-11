@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: RoOtPass
+      MYSQL_DATABASE: supportportal
+      MYSQL_USER: amigo
+      MYSQL_PASSWORD: 1234
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - 3308:3306
