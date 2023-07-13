@@ -22,10 +22,10 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
   #Instead of returning 'White label error' it will be throw exception
-  mvc:
-    throw-exception-if-no-handler-found: true
-  web:
-#  resources: //for spring version >=2.4 https://dev.to/send2abhishek/how-to-customise-white-label-error-in-spring-boot-672
-    add-mappings: false
+#  mvc:
+#    throw-exception-if-no-handler-found: true
+#  web:
+##  resources: //for spring version >=2.4 https://dev.to/send2abhishek/how-to-customise-white-label-error-in-spring-boot-672
+#    add-mappings: false
 
 # White label render method located in ErrorMvcAutoConfiguration.StaticView.render
