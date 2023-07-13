@@ -15,6 +15,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.persistence.NoResultException;
 import java.io.IOException;
@@ -72,13 +73,24 @@ public class ExceptionHandling {
         return createHttpResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    /**
+     * This method intercept exception of not existed url path. It uses
+     * instead of white label error page
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<HttpResponse> pathNotFoundException(NoHandlerFoundException e) {
+        return createHttpResponse(HttpStatus.BAD_REQUEST, "This page was not found");
+    }
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<HttpResponse> methodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         HttpMethod supportedMethod = Objects.requireNonNull(e.getSupportedHttpMethods()).iterator().next();
         return createHttpResponse(HttpStatus.METHOD_NOT_ALLOWED, String.format(METHOD_IS_NOT_ALLOWED, supportedMethod));
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<HttpResponse> internalServerErrorException(Exception e) {
         LOGGER.error(e.getMessage());
         return createHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG);
