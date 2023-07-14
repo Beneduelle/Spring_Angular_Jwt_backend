@@ -65,6 +65,12 @@ public class ExceptionHandling implements ErrorController, HandlerExceptionResol
         return createHttpResponse(HttpStatus.UNAUTHORIZED, e.getMessage().toUpperCase());
     }
 
+    @ExceptionHandler(UsernameExistsException.class)
+    public ResponseEntity<HttpResponse> userExistsException(UsernameExistsException e) {
+        LOGGER.error("Username already exists exception from exception handling");
+        return createHttpResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
     @ExceptionHandler(EmailExistsException.class)
     public ResponseEntity<HttpResponse> emailExistsException(EmailExistsException e) {
         return createHttpResponse(HttpStatus.BAD_REQUEST, e.getMessage());
