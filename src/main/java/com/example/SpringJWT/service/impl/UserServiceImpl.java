@@ -27,6 +27,7 @@ import javax.mail.MessagingException;
 import java.util.Date;
 import java.util.List;
 
+import static com.example.SpringJWT.constant.EmailConstant.ENABLE_SENDING_EMAILS;
 import static com.example.SpringJWT.constant.UserImplementationConstant.*;
 import static com.example.SpringJWT.enumeration.Role.ROLE_USER;
 
@@ -101,7 +102,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setProfileImageUrl(getTemporaryProfileImageUrl());
         userRepository.save(user);
         LOGGER.info("New user password: " + password);
-        emailService.sendNewPasswordEmail(firstName, password,email);
+        emailService.sendNewPasswordEmail(firstName, password, email);
         return user;
     }
 
