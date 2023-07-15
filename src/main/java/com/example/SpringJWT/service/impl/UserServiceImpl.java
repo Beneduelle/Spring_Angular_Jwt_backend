@@ -6,6 +6,7 @@ import com.example.SpringJWT.enumeration.Role;
 import com.example.SpringJWT.exception.domain.EmailExistsException;
 import com.example.SpringJWT.exception.domain.UsernameExistsException;
 import com.example.SpringJWT.repository.UserRepository;
+import com.example.SpringJWT.service.LoginAttemptService;
 import com.example.SpringJWT.service.UserService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
     private Logger LOGGER = LoggerFactory.getLogger(getClass());
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private LoginAttemptService loginAttemptService;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
@@ -44,11 +46,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByEmail(username);
+//        User user = userRepository.findUserByEmail(username);
+        User user = userRepository.findUserByUsername(username);
         if (user == null) {
             LOGGER.error(NO_USER_FOUND_BY_USERNAME + username);
             throw new UsernameNotFoundException(NO_USER_FOUND_BY_USERNAME + username);
         } else {
+            validateLoginAttempt(user);
             user.setLastLoginDateDisplay(user.getLastLoginDate());
             user.setLastLoginDate(new Date());
             userRepository.save(user);
@@ -58,11 +62,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
+    private void validateLoginAttempt(User user) {
+        if (user.isNotLocked()) {
+            if (loginAttemptService.hasExceededMaxAttempts(user.getUsername())) {
+                user.setNotLocked(false);
+            } else {
+                user.setNotLocked(true);
+            }
+        } else {
+            loginAttemptService.evictUserFromLoginAttemptCache(user.getUsername());
+        }
+    }
+
     @Override
     public User register(String firstName, String lastName,
                          String username,
                          String email) throws UsernameExistsException, EmailExistsException {
-        validateNewUsernameAndEmail(StringUtils.EMPTY, username, email);
+        validateNewUsernameAndEmail(StringUtils.EMPTY, username, email);//breakpoint
         User user = new User();
         user.setUserId(generateUserId());
         String password = generatePassword();
