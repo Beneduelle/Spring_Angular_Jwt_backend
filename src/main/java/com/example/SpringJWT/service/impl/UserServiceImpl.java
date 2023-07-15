@@ -39,9 +39,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private LoginAttemptService loginAttemptService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = passwordEncoder;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void validateLoginAttempt(User user) {
-        if (user.isNotLocked()) {
+        if (user.isNotLocked()) {//breakpoint
             if (loginAttemptService.hasExceededMaxAttempts(user.getUsername())) {
                 user.setNotLocked(false);
             } else {
