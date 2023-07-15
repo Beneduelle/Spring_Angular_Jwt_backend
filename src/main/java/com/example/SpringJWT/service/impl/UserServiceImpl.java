@@ -6,6 +6,7 @@ import com.example.SpringJWT.enumeration.Role;
 import com.example.SpringJWT.exception.domain.EmailExistsException;
 import com.example.SpringJWT.exception.domain.UsernameExistsException;
 import com.example.SpringJWT.repository.UserRepository;
+import com.example.SpringJWT.service.EmailService;
 import com.example.SpringJWT.service.LoginAttemptService;
 import com.example.SpringJWT.service.UserService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
 import java.util.Date;
 import java.util.List;
 
@@ -37,12 +39,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private Logger LOGGER = LoggerFactory.getLogger(getClass());
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private LoginAttemptService loginAttemptService;
+    private EmailService emailService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService, EmailService emailService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = passwordEncoder;
         this.loginAttemptService = loginAttemptService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -78,7 +82,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User register(String firstName, String lastName,
                          String username,
-                         String email) throws UsernameExistsException, EmailExistsException {
+                         String email) throws UsernameExistsException, EmailExistsException, MessagingException {
         validateNewUsernameAndEmail(StringUtils.EMPTY, username, email);//breakpoint
         User user = new User();
         user.setUserId(generateUserId());
@@ -97,6 +101,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setProfileImageUrl(getTemporaryProfileImageUrl());
         userRepository.save(user);
         LOGGER.info("New user password: " + password);
+        emailService.sendNewPasswordEmail(firstName, password,email);
         return user;
     }
 

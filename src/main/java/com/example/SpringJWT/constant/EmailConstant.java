@@ -11,7 +11,7 @@ public class EmailConstant {
     public static final String SMTP_HOST = "mail.smtp.host";
     public static final String SMTP_AUTH = "mail.smpt.auth";
     public static final String SMTP_PORT = "mail.smtp.port";
-    private static final int DEFAULT_PORT = 465;
+    public static final int DEFAULT_PORT = 465;
     public static final String SMTP_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
     public static final String SMTP_STARTTLS_REQUIRED = "mail.smtp.starttls.required";
 }
