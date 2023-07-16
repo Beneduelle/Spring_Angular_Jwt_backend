@@ -6,6 +6,8 @@ import com.example.SpringJWT.domain.UserPrincipal;
 import com.example.SpringJWT.exception.domain.*;
 import com.example.SpringJWT.service.UserService;
 import com.example.SpringJWT.utility.JWTTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,6 +43,7 @@ public class UserResource extends ExceptionHandling {
     private UserService userService;
     private AuthenticationManager authenticationManager;
     private JWTTokenProvider jwtTokenProvider;
+    private Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Autowired
     public UserResource(UserService userService, AuthenticationManager authenticationManager, JWTTokenProvider jwtTokenProvider) {
@@ -49,6 +52,12 @@ public class UserResource extends ExceptionHandling {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    //curl --location 'localhost:8081/user/login' \
+    //--header 'Content-Type: application/json' \
+    //--data '{
+    //    "username":"rick4G",
+    //    "password":"sUIcQmsSpx"
+    //}'
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody User user) {
         authenticate(user.getUsername(), user.getPassword());//breakpoint
@@ -58,12 +67,31 @@ public class UserResource extends ExceptionHandling {
         return new ResponseEntity<>(loginUser, jwtHeader, OK);
     }
 
+    //curl --location 'localhost:8081/user/register' \
+    //--header 'Content-Type: application/json' \
+    //--data-raw '{
+    //    "firstName":"Rick",
+    //    "lastName":"Guilermo",
+    //    "email":"email@rick4.com",
+    //    "username":"rick4G"
+    //}
+    //'
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) throws UserNotFoundException, UsernameExistsException, EmailExistsException, MessagingException {
         User newUser = userService.register(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail());
         return new ResponseEntity<>(newUser, OK);
     }
 
+    //curl --location 'localhost:8081/user/add' \
+    //--header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJhdWQiOiJVc2VyIE1hbmFnZW1lbnQgUG9ydGFsIiwic3ViIjoicmljazRHIiwiaXNzIjoiR2V0IEFycmF5cywgTExDIiwiQXV0aG9yaXRpZXMiOlsidXNlcjpyZWFkIl0sImV4cCI6MTY4OTkzMjE5NCwiaWF0IjoxNjg5NTAwMTk0fQ.wdbDaCUI7HnDB9o3NVa-ZUdDpiEyulZ7j4S9LU4nlpesW2yih1wx5iwHogGTFWj2EzofrdxoTrx-7uihUJRXBg' \
+    //--form 'firstName="Polly"' \
+    //--form 'lastName="Galtieri"' \
+    //--form 'username="PollyG"' \
+    //--form 'email="pollyG@gmail.com"' \
+    //--form 'role="ROLE_USER"' \
+    //--form 'isActive="true"' \
+    //--form 'isNotLocked="true"' \
+    //--form 'profileImage=@"/home/user/Downloads/user.jpg"'
     @PostMapping("/add")
     public ResponseEntity<User> addNewUser(@RequestParam("firstName") String firstName,
                                            @RequestParam("lastName") String lastName,
@@ -93,6 +121,7 @@ public class UserResource extends ExceptionHandling {
                                            @RequestParam(value = "profileImage",
                                                    required = false) MultipartFile profileImage)
             throws UsernameExistsException, EmailExistsException, IOException {
+        LOGGER.info("Update user");
         User updatedUser = userService.updateUser(currentUsername,firstName, lastName,
                 username, email, role, Boolean.parseBoolean(isNotLocked),
                 Boolean.parseBoolean(isActive), profileImage);
@@ -140,6 +169,7 @@ public class UserResource extends ExceptionHandling {
     @GetMapping(path = "/image/profile/{username}", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getTempProfileImage(@PathVariable("username") String username) throws IOException {
         URL url = new URL(TEMP_PROFILE_IMAGE_BASE_URL + username);
+        LOGGER.info("getTempProfileImage: " + url);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try (InputStream inputStream = url.openStream()) {
             int bytesRead;

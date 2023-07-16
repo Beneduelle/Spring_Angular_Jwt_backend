@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private String getTemporaryProfileImageUrl(String username) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path(DEFAULT_USER_IMAGE_PATH + username).toUriString();
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path(DEFAULT_USER_IMAGE_PATH + FORWARD_SLASH + username).toUriString();
     }
 
     private String encodePassword(String password) {
@@ -161,13 +161,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setAuthorities(getRoleEnumName(role).getAuthorities());
         user.setProfileImageUrl(setProfileImageUrl(username));
         userRepository.save(user);
+        LOGGER.info("Password for user: " + username + " is: " + password);
         saveProfileImage(user, profileImage);
         return user;
     }
 
     @Override
+    @Transactional
     public User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, boolean isNotLocked, boolean isActive, MultipartFile profileImage) throws UsernameExistsException, EmailExistsException, IOException {
-        User currentUser = new User();
+//        User currentUser = new User();
+        User currentUser = findUserByUsername(currentUsername);
         currentUser.setFirstName(newFirstName);
         currentUser.setLastName(newLastName);
         currentUser.setUsername(newUsername);
@@ -176,8 +179,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         currentUser.setNotLocked(isNotLocked);
         currentUser.setRole(getRoleEnumName(role).name());
         currentUser.setAuthorities(getRoleEnumName(role).getAuthorities());
-        userRepository.save(currentUser);
+//        userRepository.save(currentUser); //this is redundant
         saveProfileImage(currentUser, profileImage);
+        LOGGER.info("Password for user: " + currentUser.getUsername() + " is: " + currentUser.getPassword());
         return currentUser;
     }
 
@@ -195,6 +199,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String password = generatePassword();
         user.setPassword(encodePassword(password));
         userRepository.save(user);
+        LOGGER.info("Password was reset to: " + password);
         emailService.sendNewPasswordEmail(user.getFirstName(), password, user.getEmail());
     }
 
