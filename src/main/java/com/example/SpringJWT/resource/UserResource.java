@@ -36,6 +36,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 //@RequestMapping(value = "/user")
 @RequestMapping(path = {"/","/user"})
+@CrossOrigin("http://localhost:4200")
 public class UserResource extends ExceptionHandling {
 
     public static final String EMAIL_SENT = "An email with a new password was sent to: ";
