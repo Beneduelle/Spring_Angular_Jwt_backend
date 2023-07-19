@@ -36,7 +36,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 //@RequestMapping(value = "/user")
 @RequestMapping(path = {"/","/user"})
-@CrossOrigin("http://localhost:4200")
+//@CrossOrigin("http://localhost:4200")
 public class UserResource extends ExceptionHandling {
 
     public static final String EMAIL_SENT = "An email with a new password was sent to: ";
@@ -63,8 +63,11 @@ public class UserResource extends ExceptionHandling {
     public ResponseEntity<User> login(@RequestBody User user) {
         authenticate(user.getUsername(), user.getPassword());//breakpoint
         User loginUser = userService.findUserByUsername(user.getUsername());
+        LOGGER.info("Found user: " + loginUser);
         UserPrincipal userPrincipal = new UserPrincipal(loginUser);
+        LOGGER.info("Users principals: " + userPrincipal);
         HttpHeaders jwtHeader = getJwtHeader(userPrincipal);
+        LOGGER.info("With headers: " + jwtHeader);
         return new ResponseEntity<>(loginUser, jwtHeader, OK);
     }
 
