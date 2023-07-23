@@ -12,6 +12,8 @@ import com.example.SpringJWT.service.LoginAttemptService;
 import com.example.SpringJWT.service.UserService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.aspectj.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.mail.MessagingException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -193,8 +196,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void deleteUser(String username) {
-        User user = userRepository.findUserByUsername(username);
-        userRepository.deleteById(user.getId());
+        try {
+            User user = userRepository.findUserByUsername(username);
+            Path userFolder = Paths.get(USER_FOLDER + user.getUsername()).toAbsolutePath().normalize();
+            FileUtils.deleteDirectory(new File(userFolder.toString()));
+            userRepository.deleteById(user.getId());
+        } catch (IOException e) {
+            throw new RuntimeException("User folder does not exists: " + e);
+        }
     }
 
     @Override
