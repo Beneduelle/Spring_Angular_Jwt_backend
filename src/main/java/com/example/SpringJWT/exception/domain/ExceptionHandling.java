@@ -115,6 +115,12 @@ public class ExceptionHandling implements ErrorController, HandlerExceptionResol
         return createHttpResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
+    @ExceptionHandler(NotAnImageFileException.class)
+    public ResponseEntity<HttpResponse> notAnImageFileException(NotAnImageFileException e) {
+        LOGGER.error(e.getMessage());
+        return createHttpResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<HttpResponse> ioException(IOException e) {
         LOGGER.error(e.getMessage());

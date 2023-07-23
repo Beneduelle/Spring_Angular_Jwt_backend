@@ -106,7 +106,7 @@ public class UserResource extends ExceptionHandling {
                                            @RequestParam("isNotLocked") String isNotLocked,
                                            @RequestParam(value = "profileImage",
                                                    required = false) MultipartFile profileImage)
-            throws UsernameExistsException, EmailExistsException, IOException {
+            throws UsernameExistsException, EmailExistsException, IOException, NotAnImageFileException {
         User newUser = userService.addNewUser(firstName, lastName,
                 username, email, role, Boolean.parseBoolean(isNotLocked),
                 Boolean.parseBoolean(isActive), profileImage);
@@ -124,7 +124,7 @@ public class UserResource extends ExceptionHandling {
                                            @RequestParam("isNotLocked") String isNotLocked,
                                            @RequestParam(value = "profileImage",
                                                    required = false) MultipartFile profileImage)
-            throws UsernameExistsException, EmailExistsException, IOException {
+            throws UsernameExistsException, EmailExistsException, IOException, NotAnImageFileException {
         LOGGER.info("Update user");
         User updatedUser = userService.updateUser(currentUsername,firstName, lastName,
                 username, email, role, Boolean.parseBoolean(isNotLocked),
@@ -168,7 +168,7 @@ public class UserResource extends ExceptionHandling {
 
     @PostMapping("/updateProfileImage")
     public ResponseEntity<User> updateProfileImage(@RequestParam("username") String username,
-                                       @RequestParam(value = "profileImage") MultipartFile profileImage) throws UsernameExistsException, EmailExistsException, IOException {
+                                       @RequestParam(value = "profileImage") MultipartFile profileImage) throws UsernameExistsException, EmailExistsException, IOException, NotAnImageFileException {
         User user = userService.updateProfileImage(username, profileImage);
         return new ResponseEntity<>(user, OK);
     }
