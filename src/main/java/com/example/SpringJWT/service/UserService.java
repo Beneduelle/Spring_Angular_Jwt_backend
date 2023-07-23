@@ -29,7 +29,8 @@ public interface UserService {
                     String role, boolean isNotLocked,
                     boolean isActive, MultipartFile profileImage) throws UsernameExistsException, EmailExistsException, IOException;
 
-    void deleteUser(long id);
+//    void deleteUser(long id);
+    void deleteUser(String username);
 
     void resetPassword(String email) throws MessagingException, EmailNotFoundException;
 
